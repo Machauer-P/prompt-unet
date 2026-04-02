@@ -4,7 +4,7 @@ import time
 
 import tensorflow as tf
 
-from Helpers import Helpers
+from utils.Helpers import Helpers
 Helpers = Helpers()
 
 

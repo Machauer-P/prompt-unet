@@ -1,4 +1,4 @@
-from Data.DataLoader import DataLoader
+from data.DataLoader import DataLoader
 import os
 import pickle
 import numpy as np

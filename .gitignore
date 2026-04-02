@@ -2,7 +2,7 @@
 __pycache__/
 
 # Data
-data/test-data/HanSeg/
+data/test_data/HanSeg/
 
 # Large files
 *.zip
