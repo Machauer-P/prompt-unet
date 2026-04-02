@@ -1,0 +1,12 @@
+# Python cache
+__pycache__/
+
+# Data
+data/test-data/HanSeg/
+
+# Large files
+*.zip
+*.pkl
+
+# Optional: IDE/editor stuff
+.vscode/
