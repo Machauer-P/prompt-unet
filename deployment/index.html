@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt U-Net | Medical Segmentation</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="glass-panel">
+        <header>
+            <div class="logo"></div>
+            <h1>Prompt U-Net Inference</h1>
+            <p>Real-time Medical Image Segmentation</p>
+            <div class="demo-hint">
+                <p>⚠️ <strong>Local Debug Env:</strong> This interface is primarily for verifying TFJS model export
+                    functionality.</p>
+                <p>For the full, fully-featured interactive application, visit the <a
+                        href="https://github.com/Machauer-P/Prompt-U-Net-Demo" target="_blank">Official Demo
+                        Application</a>.</p>
+            </div>
+        </header>
+
+        <main class="dashboard">
+            <section class="inputs-section">
+                <h3>Inputs</h3>
+
+                <div class="input-card">
+                    <label for="inputRef">1. Reference MRI Slice</label>
+                    <div class="upload-area" id="dropRef">
+                        <span class="upload-icon">📄</span>
+                        <span>Click to Upload</span>
+                        <input type="file" id="inputRef" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="input-card">
+                    <label for="inputMask">2. User Segmentation (Prompt Mask)</label>
+                    <div class="upload-area" id="dropMask">
+                        <span class="upload-icon">🎯</span>
+                        <span>Click to Upload</span>
+                        <input type="file" id="inputMask" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="input-card">
+                    <label for="inputTarget">3. Target MRI Slice (Query)</label>
+                    <div class="upload-area" id="dropTarget">
+                        <span class="upload-icon">🔍</span>
+                        <span>Click to Upload</span>
+                        <input type="file" id="inputTarget" accept="image/*">
+                    </div>
+                </div>
+
+                <button id="predictBtn" disabled>
+                    <span class="btn-text">Initializing Model Engine...</span>
+                    <div class="loader" id="btnLoader"></div>
+                </button>
+            </section>
+
+            <section class="results-section">
+                <div class="canvases-flex">
+                    <div class="canvas-container">
+                        <h3>Input Prompt</h3>
+                        <div class="canvas-wrapper">
+                            <canvas id="promptCanvas"></canvas>
+                            <div class="placeholder-text" id="promptPlaceholder">Awaiting input...</div>
+                        </div>
+                    </div>
+
+                    <div class="canvas-container">
+                        <h3>Target Prediction</h3>
+                        <div class="canvas-wrapper">
+                            <canvas id="outputCanvas"></canvas>
+                            <div class="placeholder-text" id="canvasPlaceholder">Awaiting model...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-panel">
+                    <div class="stat-card">
+                        <span class="stat-title">Inference Speed</span>
+                        <span class="stat-value" id="inferenceStat">-- ms</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-title">Memory Allocation</span>
+                        <span class="stat-value" id="memoryStat">-- MB</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-title">Model Status</span>
+                        <span class="stat-value status-ready" id="statusStat">Loading</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Hidden image elements used by tf.browser.fromPixels -->
+    <div class="hidden-elements">
+        <img id="imgRef">
+        <img id="imgMask">
+        <img id="imgTarget">
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

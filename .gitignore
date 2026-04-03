@@ -8,5 +8,8 @@ data/test_data/HanSeg/
 *.zip
 *.pkl
 
+# Subfolder for deployment contain the tfjs models
+deployment/*/ 
+
 # Optional: IDE/editor stuff
 .vscode/
