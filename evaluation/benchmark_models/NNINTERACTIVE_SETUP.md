@@ -23,12 +23,6 @@ python -m venv venv
 .\venv\Scripts\activate
 ```
 
-**On Windows (CMD):**
-```cmd
-python -m venv venv
-venv\Scripts\activate
-```
-
 **On Linux/macOS:**
 ```bash
 python3 -m venv venv
@@ -40,7 +34,7 @@ Once the environment is active, install `nnInteractive` in editable mode:
 ```powershell
 pip install -e .
 ```
-The dependencies will be installed based on the `pyproject.toml` file in the `nnInteractive` repository. A snapshot of the requirements used during the initial setup can be found in `requirements_snapshot.txt`.
+A snapshot of the requirements used during the initial setup can be found in `requirements_snapshot.txt`.
 
 ## How to Activate the Environment (Future Use)
 
