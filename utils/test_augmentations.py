@@ -4,10 +4,13 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 from utils.augmentations import PromptUNetAugmenter
+from data.DataGenerator import DataGenerator
+from data.DataLoader_pkl import DataLoader_pkl
 
 def generate_dummy_data(h=128, w=128):
     """
-    Generate dummy data to test interpolation and values.
+    Use HanSeg_CT.pkl and HanSeg_MRI.pkl to test augmentations.
+    Generate test data first with HanSeg_generation_and_test.ipynb
     x (image): continuous values [0, 1]
     y (mask): categorical values [0, 1]
     p (prompt): prompt image and prompt mask concatenated
@@ -51,16 +54,24 @@ def print_statistics(name, tensor):
     print()
 
 def main():
-    print("Generating Dummy Data...")
-    x, y, p = generate_dummy_data()
+    # 1. Initialize Real Data
+    print("Loading Real Data from HanSeg pkl...")
+    pkl_paths = ["data/test_data/HanSeg_CT.pkl", "data/test_data/HanSeg_MRI.pkl"]
     
-    print("Original Data Statistics:")
-    print_statistics("Original x", x)
-    print_statistics("Original y", y)
-    print_statistics("Original p (Image + Mask)", p)
+    # Init dataloader pkl with max 4 img
+    dataloader = DataLoader_pkl(pkl_paths, val_size=0.0, max_img=4)
+    datagenerator = DataGenerator(dataloader)
     
-    # Force 100% probabilities to make sure everything triggers
-    # We want to see how values change and if interpolations introduce bad values in mask.
+    # Generate dp with specific parameters
+    print("Generating 10 data points...")
+    ds, offsets = datagenerator.get_data_points(
+        max_data_points=10, 
+        offset=10, 
+        max_number_labels=3, 
+        cropping=False
+    )
+    
+    # Probability 1.0 to see all effects
     augmenter_all = PromptUNetAugmenter(
         prob_photo=1.0,
         prob_gamma=1.0,
@@ -71,51 +82,58 @@ def main():
         prob_false_pos=1.0
     )
     
-    print("\nApplying Augmentations (All Probs = 1.0)...")
-    x_aug, y_aug, p_aug = augmenter_all(x, y, p)
+    # Process and Visualize
+    print("\nApplying Augmentations and Saving Plots...")
     
-    print("Augmented Data Statistics:")
-    print_statistics("Augmented x", x_aug)
-    print_statistics("Augmented y", y_aug)
-    print_statistics("Augmented p", p_aug)
+    output_dir = "utils/results"
+    os.makedirs(output_dir, exist_ok=True)
     
-    p_x_aug, p_y_aug = tf.split(p_aug, num_or_size_splits=2, axis=-1)
-    print_statistics("Augmented p_y (Prompt Mask Only)", p_y_aug)
-    
-    # Plot results
-    fig, axes = plt.subplots(2, 4, figsize=(16, 8))
-    fig.suptitle("Augmentation Tests (Top: Original, Bottom: Augmented)", fontsize=16)
-    
-    p_x_orig, p_y_orig = tf.split(p, 2, axis=-1)
-    
-    # Row 0: Original
-    axes[0, 0].imshow(np.squeeze(x), cmap='gray')
-    axes[0, 0].set_title("Original x")
-    axes[0, 1].imshow(np.squeeze(y), cmap='gray')
-    axes[0, 1].set_title("Original y")
-    axes[0, 2].imshow(np.squeeze(p_x_orig), cmap='gray')
-    axes[0, 2].set_title("Original p_x")
-    axes[0, 3].imshow(np.squeeze(p_y_orig), cmap='gray')
-    axes[0, 3].set_title("Original p_y")
-    
-    # Row 1: Augmented
-    axes[1, 0].imshow(np.squeeze(x_aug), cmap='gray')
-    axes[1, 0].set_title("Augmented x")
-    axes[1, 1].imshow(np.squeeze(y_aug), cmap='gray')
-    axes[1, 1].set_title("Augmented y")
-    axes[1, 2].imshow(np.squeeze(p_x_aug), cmap='gray')
-    axes[1, 2].set_title("Augmented p_x")
-    axes[1, 3].imshow(np.squeeze(p_y_aug), cmap='gray')
-    axes[1, 3].set_title("Augmented p_y")
-    
-    for ax in axes.flatten():
-        ax.axis('off')
+    for i, (x, y, p) in enumerate(ds):
+        print(f"=== Processing Data Point {i+1} ===")
+        print_statistics(f"Original x {i+1}", x)
         
-    os.makedirs("results", exist_ok=True)
-    plt.tight_layout()
-    plt.savefig("results/augmentation_test.png")
-    print("\nSaved visualization to results/augmentation_test.png")
-    plt.show()
+        x_aug, y_aug, p_aug = augmenter_all(x, y, p)
+        
+        print_statistics(f"Augmented x {i+1}", x_aug)
+        print_statistics(f"Augmented y {i+1}", y_aug)
+        
+        # Prepare Plot
+        p_x_orig, p_y_orig = tf.split(p, 2, axis=-1)
+        p_x_aug, p_y_aug = tf.split(p_aug, 2, axis=-1)
+        
+        fig, axes = plt.subplots(2, 4, figsize=(16, 8))
+        fig.suptitle(f"Augmentation Test - DP {i+1}", fontsize=16)
+        
+        # Row 0: Original
+        axes[0, 0].imshow(np.squeeze(x), cmap='gray')
+        axes[0, 0].set_title("Original x")
+        axes[0, 1].imshow(np.squeeze(y), cmap='gray')
+        axes[0, 1].set_title("Original y")
+        axes[0, 2].imshow(np.squeeze(p_x_orig), cmap='gray')
+        axes[0, 2].set_title("Original p_x")
+        axes[0, 3].imshow(np.squeeze(p_y_orig), cmap='gray')
+        axes[0, 3].set_title("Original p_y")
+        
+        # Row 1: Augmented
+        axes[1, 0].imshow(np.squeeze(x_aug), cmap='gray')
+        axes[1, 0].set_title("Augmented x")
+        axes[1, 1].imshow(np.squeeze(y_aug), cmap='gray')
+        axes[1, 1].set_title("Augmented y")
+        axes[1, 2].imshow(np.squeeze(p_x_aug), cmap='gray')
+        axes[1, 2].set_title("Augmented p_x")
+        axes[1, 3].imshow(np.squeeze(p_y_aug), cmap='gray')
+        axes[1, 3].set_title("Augmented p_y")
+        
+        for ax in axes.flatten():
+            ax.axis('off')
+            
+        plt.tight_layout()
+        save_path = f"{output_dir}/augmentation_test_{i+1:02d}.png"
+        plt.savefig(save_path)
+        print(f"Saved visualization to {save_path}")
+        plt.close(fig) # Close to avoid memory buildup
+    
+    print("\nAll 10 samples processed and saved.")
 
 if __name__ == "__main__":
     main()
