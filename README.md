@@ -1,12 +1,12 @@
 # prompt-unet
 
-A repository for development and evaluation of Prompt-UNet models.
+A repository for development and evaluation of the Prompt U-Net.
 
 ## Evaluation & Benchmarks
 
-This project includes benchmarking of external models such as **nnInteractive**.
+This project includes benchmarking of external the models **nnInteractive** and **UniverSeg**.
 
-For instructions on how to set up and use `nnInteractive` for benchmarking, see the [nnInteractive Setup Guide](file:///evaluation/benchmark_models/NNINTERACTIVE_SETUP.md).
+For instructions on how to set up and use them for benchmarking, see the under evaluation/benchmark_models.
 
 ## Project Structure
 - `data/`: Dataset storage and processing scripts.
