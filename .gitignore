@@ -4,6 +4,9 @@ __pycache__/
 # Data
 data/test_data/HanSeg/
 
+# Augm test results
+utils/results/
+
 # Large files
 *.zip
 *.pkl
